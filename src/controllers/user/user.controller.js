@@ -4,10 +4,10 @@ import * as helpers from '../../helpers';
 import {
   User
 } from '../../models';
+import responseMessage from '../../constants/res-message';
 
 export const register = async (req, res) => {
   try {
-
     const { firstName, lastName, email } = req.body;
     const user = await User.findOne(
       {
@@ -16,7 +16,7 @@ export const register = async (req, res) => {
     );
 
     if (user) {
-      return res.status(409).json({ message: "User with email already exists." });
+      return res.status(409).json({ message: responseMessage.ALREADY_EXIST });
     }
 
     const newUser = await User.create({
@@ -24,7 +24,6 @@ export const register = async (req, res) => {
       lastName: lastName,
       email: email
     });
-
     res.status(201).json(newUser);
 
   } catch (error) {
@@ -44,12 +43,12 @@ export const login = async (req, res) => {
       },
     );
     if (!user) {
-      return res.status(404).json({ message: "Invalid credentials." });
+      return res.status(404).json({ message: responseMessage.INVALID_CRED });
     }
 
     const encryptedPassword = helpers.encryptPassword(req.body.password);
     if (encryptedPassword !== user.password) {
-      return res.status(404).json({ message: "Invalid credentials." });
+      return res.status(404).json({ message: responseMessage.INVALID_CRED });
     }
 
     const token = sign(
@@ -74,12 +73,13 @@ export const login = async (req, res) => {
         accessToken: token
       }
     };
-
-    return res.status(200).json({ message: "User login successfully.", data: result });
+    return res.status(200).json({ message: responseMessage.LOGIN_SUCESS, data: result });
 
   } catch (error) {
     return res.status(500).json({ message: "Something went wrong." });
   }
+
+
 };
 
 

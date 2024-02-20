@@ -10,10 +10,4 @@ module.exports = nodemailer.createTransport({
   secure: true,
   requireTLS: true,
 });
-// // An array of attachments
-// attachments: [
-//     {
-//         filename: 'text notes.txt',
-//         path: 'notes.txt'
-//     },
-//  ]
+

@@ -28,7 +28,7 @@ fs.readdirSync(__dirname)
   ))
   .forEach((file) => {
     // eslint-disable-next-line import/no-dynamic-require
-    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+    const model = require(path.join(__dirname, file));
     db[model.name] = model;
   });
 

@@ -1,42 +1,22 @@
 import joi from 'joi';
 import { deleteFile, errorResponse, isValidTech } from '../../helpers';
-import {
-  ADMIN, DEV, HR, PM,
-} from '../../constants';
+import { ADMIN } from '../../constants';
 
 const validation = joi.object({
   firstName: joi.string().trim(true).required(),
   lastName: joi.string().trim(true).required(),
-  middleName: joi.string().trim(true),
   email: joi.string().email().trim(true).required(),
-  gender: joi.string().trim(true).valid('male', 'female').required(),
-  DOB: joi.date().less('now').required(),
-  joiningDate: joi.date().required(),
-  role: joi.string().trim(true).valid(ADMIN, DEV, PM, HR).required(),
-
-
-
+  roleId: joi.number().valid(1, 2).required(),
 });
 
 export const employeeValidate = async (req, res, next) => {
-  // console.log(req.body);
   const payload = {
     firstName: req.body.firstName,
-    middleName: req.body.middleName,
     lastName: req.body.lastName,
     email: req.body.email,
-    role: req.body.role,
-    addressLine1: req.body.addressLine1,
-    addressLine2: req.body.addressLine2,
-    landmark: req.body.landmark,
-    state: req.body.state,
-    pincode: req.body.pincode,
-    city: req.body.city,
-    country: req.body.country,
+    role: req.body.role
   };
-  // console.log(req.params.employeeId);
-  // console.log('FILE', req.file);
-  // console.log(req.body);
+
   const { error } = validation.validate(payload);
 
   if (!req.file && !req.body.edited) {

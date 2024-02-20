@@ -1,15 +1,15 @@
 import sendgrid from '@sendgrid/mail';
 
-export const sendRegistrationMail = (employee, password) => {
+export const sendRegistrationMail = (user, password) => {
   sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
   const msg = {
-    to: employee.email,
+    to: user.email,
     from: process.env.EMAIL,
     subject: 'registration ',
     text: 'your account has been created!!',
-    html: ` <p> hello </p><strong> ${employee.firstName}, </strong> </br>
+    html: ` <p> hello </p><strong> ${user.firstName}, </strong> </br>
             <p> you are registered with ems. your password and user name are given below.</p> </br>
-            <strong>user name: </strong> <p> ${employee.email} </p> </br>
+            <strong>user name: </strong> <p> ${user.email} </p> </br>
             <strong> password: </strong> <p> ${password} </p> </br>
             <p> this is auto generated password after first log-in please change passwod. </p>`,
   };
@@ -18,16 +18,16 @@ export const sendRegistrationMail = (employee, password) => {
     .catch(error => error);
 };
 
-export const sendForgotPasswordMail = (employee, password) => {
+export const sendForgotPasswordMail = (user, password) => {
   sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
   const msg = {
-    to: employee.email,
+    to: user.email,
     from: process.env.EMAIL,
     subject: 'registration ',
     text: 'your account has been created!!',
-    html: ` <p> hello </p><strong> ${employee.firstName}, </strong> </br>
+    html: ` <p> hello </p><strong> ${user.firstName}, </strong> </br>
             <p> your new password and user name are given below.</p> </br>
-            <strong>user name: </strong> <p> ${employee.email} </p> </br>
+            <strong>user name: </strong> <p> ${user.email} </p> </br>
             <strong> password: </strong> <p> ${password} </p> </br>
             <p> this is auto generated password after log-in please change passwod. </p>`,
   };
