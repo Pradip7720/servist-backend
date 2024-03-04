@@ -11,19 +11,11 @@ const sequelize = new Sequelize(
   },
 );
 
-sequelize.sync({ force: false })
-  .then(() => {
-    console.log('Database synchronized');
-  })
-  .catch(err => {
-    console.error(`Error synchronizing database ${err}`);
-  });
-
 sequelize
   .authenticate()
   .then(() => {
     console.log('Connection has been established successfully.');
   })
   .catch((err) => {
-    console.error(`Unable to connect to the database ${err}`);
+    console.error('Unable to connect to the database:', err);
   });

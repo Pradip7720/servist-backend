@@ -2,11 +2,11 @@ module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     'User',
     {
-      first_name: {
+      firstName: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      last_name: {
+      lastName: {
         type: DataTypes.STRING,
       },
       email: {
@@ -15,68 +15,68 @@ module.exports = (sequelize, DataTypes) => {
       },
       password: {
         type: DataTypes.STRING,
-      },
-      salt: {
-        type: DataTypes.STRING,
         allowNull: false,
       },
       pincode: {
         type: DataTypes.STRING,
       },
-      role_id: {
+      roleId: {
         type: DataTypes.INTEGER,
+        allowNull: false,
       },
-      is_verified: {
+      isVerified: {
         type: DataTypes.STRING,
         defaultValue: 'pending',
         allowNull: false,
       },
-      mobile_country_code: {
+      mobileCountryCode: {
         type: DataTypes.STRING,
       },
-      phone_number: {
+      phoneNumber: {
         type: DataTypes.STRING,
       },
       theme: {
         type: DataTypes.STRING,
       },
-      is_active: {
+      isActive: {
         type: DataTypes.BOOLEAN,
-        defaultValue: true,
+        defaultValue: false,
         allowNull: false,
       },
-      is_licence_added: {
+      isLicenceAdded: {
         type: DataTypes.BOOLEAN,
-        allowNull: false,
+        defaultValue: false,
       },
-      password_updated_at: {
-        allowNull: false,
+      passwordUpdatedAt: {
         type: DataTypes.DATE,
       },
-      created_at: {
+      createdAt: {
         allowNull: false,
         type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
       },
-      updated_at: {
-        allowNull: false,
+      updatedAt: {
         type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
       },
-      created_by: {
+      createdBy: {
         type: DataTypes.UUID,
+        allowNull: true,
         defaultValue: DataTypes.UUIDV4,
       },
-      updated_by: {
+      updatedBy: {
         type: DataTypes.UUID,
+        allowNull: true,
         defaultValue: DataTypes.UUIDV4,
       },
     },
     {
       defaultScope: {
-        attributes: { exclude: ['password', 'verifyToken', 'isAdmin'] },
+        attributes: { exclude: ['password'] },
       },
       scopes: {
         withSecretColumns: {
-          attributes: { include: ['password', 'verifyToken', 'isAdmin'] },
+          attributes: { include: ['password'] },
         },
       },
     },

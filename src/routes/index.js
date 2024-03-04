@@ -1,10 +1,9 @@
-
-const authenticateRoute = require('./user.route');
+import authRoute from './auth';
 
 const routes = [
     {
         path: `/auth`,
-        route: authenticateRoute,
+        route: authRoute,
     }
 ];
 

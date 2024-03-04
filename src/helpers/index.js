@@ -3,29 +3,8 @@ import fs from 'fs';
 import { createHash } from 'crypto';
 import multer from 'multer';
 import AWS from 'aws-sdk';
-import crypto from 'crypto';
+import path from 'path';
 import Jimp from 'jimp';
-import { Technology } from '../models';
-
-export const successResponse = (req, res, data, code = 200) => res.send({
-  code,
-  data,
-  success: true,
-});
-
-export const errorResponse = (
-  req,
-  res,
-  errorMessage = 'Something went wrong',
-  code = 500,
-  error = {},
-) => res.status(code).json({
-  code,
-  errorMessage,
-  error,
-  data: null,
-  success: false,
-});
 
 export const getTimeBetweenDates = (startDate, endDate) => {
   const sDate = new Date(startDate);
@@ -38,20 +17,12 @@ export const getTimeBetweenDates = (startDate, endDate) => {
   }
   return `${year} years, ${month + 1} months`;
 };
+
 export const validateEmail = (email) => {
   const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(String(email).toLowerCase());
 };
 
-export const isValidTech = async (arr) => {
-  let techList = await Technology.findAll(
-    {
-      attributes: ['techName'],
-    },
-  );
-  techList = techList.map(elem => elem.techName);
-  return arr.every(elem => techList.includes(elem));
-};
 
 export const encryptPassword = (password) => {
   const encryptedPassword = createHash('md5').update(password).digest('hex');
@@ -73,11 +44,12 @@ export const generatePassword = () => {
   const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let password = '';
   for (let i = 0, n = charset.length; i < length; i += 1) {
-    password += charset.charAt(Math.floor((crypto.getRandomValues(new Uint8Array(1))[0] / Math.pow(2, 8)) * n)); // import `crypto` by `const crypto = require('crypto')`
+    password += charset.charAt(Math.floor(Math.random() * n));
   }
   return password;
 };
 
+const dest = path.join(__dirname, '..', '..', 'public', 'storage');
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, dest);
@@ -165,20 +137,20 @@ export const cloudUpload = async (file) => {
   );
 };
 
-// export const retriveImage = (filename) => {
-//   const s3 = new AWS.S3({
-//     accessKeyId: process.env.AWS_KEY_ID,
-//     secretAccessKey: process.env.AWS_SECRET_ACCESS,
-//   });
+export const retriveImage = (filename) => {
+  const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS,
+  });
 
-//   const params = {
-//     Bucket: process.env.AWS_S3_BUCKET,
-//     Key: filename,
-//   };
-//   s3.getObject(params, (err, data) => {
-//     if (err) {
-//       return err;
-//     }
-//     const image = `data:image/jpeg;base64,${btoa(data.Body)}`;
-//   });
-// };
+  const params = {
+    Bucket: process.env.AWS_S3_BUCKET,
+    Key: filename,
+  };
+  s3.getObject(params, (err, data) => {
+    if (err) {
+      return err;
+    }
+    const image = `data:image/jpeg;base64,${btoa(data.Body)}`;
+  });
+};

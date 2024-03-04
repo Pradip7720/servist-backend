@@ -1,7 +1,7 @@
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
 module.exports = nodemailer.createTransport({
-  port: 465, // true for 465, false for other ports
+  port: 465,
   host: 'smtp.gmail.com',
   auth: {
     user: process.env.MAIL_USERNAME,
