@@ -10,7 +10,7 @@ import {
 
 export const register = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, pincode, roleId, mobileCountryCode, phoneNumber, theme, isActive, isLicenceAdded, passwordUpdatedAt } = req.body;
+    const { firstName, lastName, email, password, pincode, roleId, mobileCountryCode, phoneNumber, theme, isLicenceAdded, passwordUpdatedAt } = req.body;
 
     const existingUser = await User.findOne({
       where: {
