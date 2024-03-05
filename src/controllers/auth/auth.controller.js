@@ -1,7 +1,7 @@
 import { sign } from 'jsonwebtoken';
 import * as helpers from '../../helpers';
 import * as errorMessages from '../../constants/errorMessages';
-import * as successMessages from '../../constants/successMessages';
+import * as resMessages from '../../constants/successMessages';
 
 import {
   User
@@ -19,7 +19,7 @@ export const register = async (req, res) => {
     });
 
     if (existingUser) {
-      return res.status(409).json({ message: errorMessages.EMAIL_ALREADY_EXISTS });
+      return res.status(409).json({ message: resMessages.EMAIL_ALREADY_EXISTS });
     }
 
 		const encryptedPassword = helpers.encryptPassword(password);
@@ -38,7 +38,7 @@ export const register = async (req, res) => {
       passwordUpdatedAt,
     });
 
-		res.status(201).json({ message: successMessages.REGISTRATION_SUCCESS, data: newUser });
+		res.status(201).json({ message: resMessages.REGISTRATION_SUCCESS, data: newUser });
   } catch (error) {
     console.log('Error: ', error);
     return res.status(500).json({ message: errorMessages.INTERNAL_SERVER_ERROR });

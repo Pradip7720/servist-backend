@@ -1,2 +1,5 @@
-export const LOGIN_SUCCESS = 'Login successful';
-export const REGISTRATION_SUCCESS = 'Registration successful';
+export const resMessages = {
+    LOGIN_SUCCESS: 'Login successful.',
+    REGISTRATION_SUCCESS: 'Registration successful.'
+}
+
