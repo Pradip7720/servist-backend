@@ -3,8 +3,8 @@ import fs from 'fs';
 import { createHash } from 'crypto';
 import multer from 'multer';
 import AWS from 'aws-sdk';
-import path from 'path';
 import Jimp from 'jimp';
+import crypto from 'crypto';
 
 export const getTimeBetweenDates = (startDate, endDate) => {
   const sDate = new Date(startDate);
@@ -44,12 +44,11 @@ export const generatePassword = () => {
   const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let password = '';
   for (let i = 0, n = charset.length; i < length; i += 1) {
-    password += charset.charAt(Math.floor(Math.random() * n));
+    password += charset.charAt(Math.floor((crypto.getRandomValues(new Uint8Array(1))[0] / Math.pow(2, 8)) * n)); // import `crypto` by `const crypto = require('crypto')`
   }
   return password;
 };
 
-const dest = path.join(__dirname, '..', '..', 'public', 'storage');
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, dest);

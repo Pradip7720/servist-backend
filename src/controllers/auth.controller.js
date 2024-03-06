@@ -89,4 +89,19 @@ export const login = async (req, res) => {
   }
 };
 
+export const changePassword = (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    if (oldPassword === user.password) {
+      user.password = newPassword;
+      res.status(200).json({ message: resMessages.PASSWORD_CHANGED_SUCCESS });
+    } else {
+      res.status(401).json({ message: 'Incorrect old password. Password change failed.' });
+    }
+  } catch (error) {
+    console.error('Error changing password:', error);
+    res.status(500).json({ message: 'Internal server error. Password change failed.' });
+  }
+};
 

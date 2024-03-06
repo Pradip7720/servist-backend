@@ -9,8 +9,12 @@ require('./src/config/sequelize');
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors());
 
+app.use(cors({
+    origin: process.env.ALLOW_ORIGIN,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+}));
 registerRoutes(app);
 
 
