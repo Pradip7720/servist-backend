@@ -1,62 +1,38 @@
+import aws from 'aws-sdk';
 import nodemailer from 'nodemailer';
+import { resMessages } from '../constants/successMessages';
+import { errorMessages } from '../constants/errorMessages';
+// AWS SES
+aws.config.update({
+  accessKeyId: 'YOUR_ACCESS_KEY',    //   AWS access key
+  secretAccessKey: 'YOUR_SECRET_KEY', // AWS secret key
+  region: 'us-east-1'                 // Replace AWS region
+});
 
-export const sendRegistrationMail = (user, password) => {
+// Configure Nodemailer with SES
+const transporter = nodemailer.createTransport({
+  SES: new aws.SES({ apiVersion: '2010-12-01' })
+});
+
+// Function to send an email
+const sendEmail = async (to, subject, message) => {
   try {
-    const transporter = nodemailer.createTransport({
-      port: 465,
-      host: "smtp.gmail.com",
-      auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASSWORD,
-      },
-      secure: true,
-      requireTLS: true,
-    });
-
+    // Define email options
     const mailOptions = {
-      from: 'fintrak.alert@gmail.com',
-      to: employee.email,
-      subject: 'your account has been created!!',
-      html: ` <p> hello </p><strong> ${user.firstName}, </strong> </br>
-            <p> you are registered with ems. your password and user name are given below.</p> </br>
-            <strong>user name: </strong> <p> ${user.email} </p> </br>
-            <strong> password: </strong> <p> ${password} </p> </br>
-            <p> this is auto generated password after first log-in please change passwod. </p>`,
+      from: 'your-email@example.com', // Replace  sender email address
+      to,
+      subject,
+      text: message
     };
-    transporter.sendMail(mailOptions);
 
-  } catch (err) {
-    console.log(err.message)
-  }
+    const result = await transporter.sendMail(mailOptions);
 
-};
-
-export const sendForgotPasswordMail = (user, password) => {
-  try {
-    const transporter = nodemailer.createTransport({
-      port: 465,
-      host: "smtp.gmail.com",
-      auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASSWORD,
-      },
-      secure: true,
-      requireTLS: true,
-    });
-
-    const mailOptions = {
-      to: employee.email,
-      from: 'fintrak.alert@gmail.com',
-      subject: 'your account has been created!!',
-      html: ` <p> hello </p><strong> ${user.firstName}, </strong> </br>
-            <p> your new password and user name are given below.</p> </br>
-            <strong>user name: </strong> <p> ${user.email} </p> </br>
-            <strong> password: </strong> <p> ${password} </p> </br>
-            <p> this is auto generated password after log-in please change passwod. </p>`,
-    };
-    transporter.sendMail(mailOptions);
-
-  } catch (err) {
-    console.log(err.message)
+    console.log('Email sent:', result);
+    return { success: true, message: resMessages.EMAIL_SUCCESS };
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return { success: false, message: errorMessages.EMAIL_SEND_ERR };
   }
 };
+
+module.exports = { sendEmail };

@@ -10,6 +10,6 @@ const routes = [
 const registerRoutes = (app) =>
     routes.forEach((route) => {
         app.use(route.path, route.route);
-});
+    });
 
 module.exports = registerRoutes;
