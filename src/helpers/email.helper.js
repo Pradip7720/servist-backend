@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
   SES: new aws.SES({ apiVersion: '2010-12-01' })
 });
 
-const sendEmail = async (to, subject, message) => {
+export const sendEmail = async (to, subject, message) => {
   try {
     const mailOptions = {
       from: process.env.MAIL_USERNAME,
@@ -23,14 +23,10 @@ const sendEmail = async (to, subject, message) => {
       text: message
     };
 
-    const result = await transporter.sendMail(mailOptions);
-
-    console.log('Email sent:', result);
+    await transporter.sendMail(mailOptions);
     return { message: resMessages.EMAIL_SUCCESS };
   } catch (error) {
     console.error('Error sending email:', error);
     return { message: errorMessages.EMAIL_SEND_ERR };
   }
 };
-
-module.exports = { sendEmail };

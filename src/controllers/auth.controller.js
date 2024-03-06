@@ -6,6 +6,7 @@ import * as resMessages from '../constants/successMessages';
 import {
   User
 } from '../models';
+import { generateOTP } from '../helpers/otp-gen.helper';
 
 export const register = async (req, res) => {
   try {
@@ -97,11 +98,60 @@ export const changePassword = (req, res) => {
       user.password = newPassword;
       res.status(200).json({ message: resMessages.PASSWORD_CHANGED_SUCCESS });
     } else {
-      res.status(401).json({ message: 'Incorrect old password. Password change failed.' });
+      res.status(401).json({ message: 'Incorrect old password.' });
     }
   } catch (error) {
     console.error('Error changing password:', error);
-    res.status(500).json({ message: 'Internal server error. Password change failed.' });
+    res.status(500).json({ message: 'Password change failed.' });
+  }
+};
+
+export const forgotPassword = (req, res) => {
+  try {
+    const { email } = req.body;
+    // Check if the email exists in the user data
+    const user = users.find((user) => user.email === email);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Generate and store OTP
+    const otp = generateOTP();
+    otpStore[email] = otp;
+
+    // Send OTP to the user's email
+    // const otpSent = sendEmail(email, otp);
+
+    if (otpSent) {
+      return res.status(200).json({ message: 'OTP sent successfully.' });
+    } else {
+      return res.status(500).json({ message: 'Error sending OTP.' });
+    }
+  } catch (error) {
+    console.error('Error processing forgot password request:', error);
+    return res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+export const verifyOTP = (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    // Retrieve stored OTP for the given email
+    const storedOTP = otpStore[email];
+
+    if (!storedOTP || otp !== storedOTP) {
+      return res.status(401).json({ message: resMessages.INVALID_OTP, isVerified: false });
+    }
+
+    // Clear the stored OTP after successful verification (optional)
+    delete otpStore[email];
+
+    res.status(200).json({ message: resMessages.OTP_VERIFIED_SUCCESS, isVerified: true });
+  } catch (error) {
+    console.error('Error verifying OTP:', error);
+    res.status(500).json({ message: 'Internal server error.', isVerified: false });
   }
 };
 
