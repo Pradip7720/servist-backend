@@ -150,7 +150,7 @@ export const verifyOTP = (req, res) => {
 
     res.status(200).json({ message: resMessages.OTP_VERIFIED_SUCCESS, isVerified: true });
   } catch (error) {
-    console.error('Error verifying OTP:', error);
+    console.error('Error verifying', error);
     res.status(500).json({ message: 'Internal server error.', isVerified: false });
   }
 };
