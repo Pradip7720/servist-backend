@@ -5,18 +5,6 @@ const loginValidation = joi.object({
 	password: joi.string().trim(true).required().min(8).max(12),
 });
 
-export const loginValidate = async (req, res, next) => {
-	const payload = {
-		email: req.body.email,
-		password: req.body.password,
-	};
-	const { error } = loginValidation.validate(payload);
-	if (error) {
-		return res.status(406).json({ message: `Validation Error: ${error.message}` });
-	}
-	return next();
-};
-
 const userRegistrationSchema = joi.object({
 	firstName: joi.string().required(),
 	lastName: joi.string(),
@@ -29,6 +17,18 @@ const userRegistrationSchema = joi.object({
 	theme: joi.string(),
 	isLicenceAdded: joi.boolean().required(),
 });
+
+export const loginValidate = async (req, res, next) => {
+	const payload = {
+		email: req.body.email,
+		password: req.body.password,
+	};
+	const { error } = loginValidation.validate(payload);
+	if (error) {
+		return res.status(406).json({ message: `Validation Error: ${error.message}` });
+	}
+	return next();
+};
 
 export const userRegistrationValidate = async (req, res, next) => {
 	const { error } = userRegistrationSchema.validate(req.body);

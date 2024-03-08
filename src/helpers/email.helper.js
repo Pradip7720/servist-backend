@@ -2,37 +2,31 @@ import aws from 'aws-sdk';
 import nodemailer from 'nodemailer';
 import { resMessages } from '../constants/successMessages';
 import { errorMessages } from '../constants/errorMessages';
-// AWS SES
+
 aws.config.update({
-  accessKeyId: 'YOUR_ACCESS_KEY',    //   AWS access key
-  secretAccessKey: 'YOUR_SECRET_KEY', // AWS secret key
-  region: 'us-east-1'                 // Replace AWS region
+  accessKeyId: process.env.AWS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS,
+  region: process.env.AWS_REGION
 });
 
-// Configure Nodemailer with SES
+
 const transporter = nodemailer.createTransport({
   SES: new aws.SES({ apiVersion: '2010-12-01' })
 });
 
-// Function to send an email
-const sendEmail = async (to, subject, message) => {
+export const sendEmail = async (to, subject, message) => {
   try {
-    // Define email options
     const mailOptions = {
-      from: 'your-email@example.com', // Replace  sender email address
+      from: process.env.MAIL_USERNAME,
       to,
       subject,
       text: message
     };
 
-    const result = await transporter.sendMail(mailOptions);
-
-    console.log('Email sent:', result);
-    return { success: true, message: resMessages.EMAIL_SUCCESS };
+    await transporter.sendMail(mailOptions);
+    return { message: resMessages.EMAIL_SUCCESS };
   } catch (error) {
     console.error('Error sending email:', error);
-    return { success: false, message: errorMessages.EMAIL_SEND_ERR };
+    return { message: errorMessages.EMAIL_SEND_ERR };
   }
 };
-
-module.exports = { sendEmail };
