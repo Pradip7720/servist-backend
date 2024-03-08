@@ -92,4 +92,9 @@ export const login = async (req, res) => {
   }
 };
 
+export const getUser = async (req, res) => {
+  
+}; 
+
+
 
