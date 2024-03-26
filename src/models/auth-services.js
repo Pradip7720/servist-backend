@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
         },
     }, {
         tableName: 'auth_services',
-        timestamps: false, // If you want Sequelize to handle timestamps, set it to true
+        timestamps: false, 
         indexes: [
             {
                 name: 'idx_auth_services_user_id',

@@ -142,7 +142,7 @@ export const verifyOTP = (req, res) => {
     const storedOTP = otpStore[email];
 
     if (!storedOTP || otp !== storedOTP) {
-      return res.status(401).json({ message: resMessages.INVALID_OTP, isVerified: false });
+      return res.status(401).json({ message: resMessages.INVALID_OTP,  isVerified: false });
     }
 
     // Clear the stored OTP after successful verification (optional)
