@@ -11,6 +11,7 @@ const sequelize = new Sequelize(
   },
 );
 
+
 sequelize
   .authenticate()
   .then(() => {
@@ -19,3 +20,13 @@ sequelize
   .catch((err) => {
     console.error(`Unable to connect to the database: ${err}`);
   });
+  async function syncDatabase() {
+    try {
+      await sequelize.sync({ force: true }); // This will drop existing tables and re-create them
+      console.log('Database synchronized successfully.');
+    } catch (error) {
+      console.error('Error synchronizing database:', error);
+    }
+  }
+  
+  syncDatabase();

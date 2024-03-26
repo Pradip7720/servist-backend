@@ -2,6 +2,9 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import registerRoutes from './src/routes/index';
+// app.js
+
+import typesenseClient from '././src/config/typesense'; 
 
 dotenv.config();
 require('./src/config/sequelize');
