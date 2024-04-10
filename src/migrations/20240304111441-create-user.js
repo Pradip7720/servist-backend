@@ -8,11 +8,11 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      firstName: {
+      first_name: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      lastName: {
+      last_name: {
         type: Sequelize.STRING
       },
       email: {
@@ -26,52 +26,52 @@ module.exports = {
       pincode: {
         type: Sequelize.STRING
       },
-      roleId: {
+      role: {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      isVerified: {
+      is_verified: {
         type: Sequelize.STRING,
         defaultValue: 'pending',
         allowNull: false
       },
-      mobileCountryCode: {
+      mobile_country_code: {
         type: Sequelize.STRING
       },
-      phoneNumber: {
+      phone_number: {
         type: Sequelize.STRING
       },
       theme: {
         type: Sequelize.STRING
       },
-      isActive: {
+      is_active: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
         allowNull: false
       },
-      isLicenceAdded: {
+      is_licence_added: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
       },
-      passwordUpdatedAt: {
+      password_updated_at: {
         type: Sequelize.DATE
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
-      createdBy: {
+      created_by: {
         type: Sequelize.UUID,
         allowNull: true,
         defaultValue: Sequelize.UUIDV4
       },
-      updatedBy: {
+      updated_by: {
         type: Sequelize.UUID,
         allowNull: true,
         defaultValue: Sequelize.UUIDV4

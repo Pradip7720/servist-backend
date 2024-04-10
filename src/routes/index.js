@@ -1,9 +1,15 @@
 import authRoute from './auth';
+import postRoute from './post';
+
 
 const routes = [
     {
         path: `/auth`,
         route: authRoute,
+    },
+    {
+        path: `/posts`,
+        route: postRoute,
     }
 ];
 
