@@ -28,10 +28,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
-      salt: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
       role: {
         type: DataTypes.ENUM('1', '2'),
         defaultValue: '2'
@@ -109,9 +105,14 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  User.associate = function () {
-    // Define associations here if needed
+  User.associate = function (models) {
+    User.hasMany(models.User, { foreignKey: 'created_by', as: 'createdUsers', constraints: false });
+    User.hasMany(models.User, { foreignKey: 'updated_by', as: 'updatedUsers', constraints: false });
+    User.hasMany(models.User, { foreignKey: 'verified_by', as: 'verifiedUsers', constraints: false });
+    User.hasMany(models.User, { foreignKey: 'rejected_by', as: 'rejectedUsers', constraints: false });
+    
+    User.hasMany(models.Post, { foreignKey: 'created_by', as: 'posts' });
   };
 
-  return User;
+return User;
 };
