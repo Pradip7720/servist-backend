@@ -1,12 +1,7 @@
-
-
-// import { Post, PostTag, Speciality } from '../models'; // Import your Sequelize models
-const { Post, PostPin, Speciality } = require('../models');
+const { Post, PostPin, Speciality, ReportPost, PostBookmark, PostComment } = require('../models');
 
 export const createPost = async (req, res) => {
   try {
-
-    console.log("req.body", req.body)
     const {
       postTitle,
       message,
@@ -30,8 +25,6 @@ export const createPost = async (req, res) => {
       hiring_recommendation: hiringRecommendation,
       speciality_id: speciality,
     });
-
-    console.log("jkds", Post)
     await post.addGroups(groupId); //  groupId is an array of group IDs
 
     await Promise.all(tags.map(tagId => PostTag.create({ postId: post.id, tagId })));
@@ -44,9 +37,7 @@ export const createPost = async (req, res) => {
 
 export const deletePost = async (req, res) => {
   try {
-
     const postId = req.params.postId;
-    console.log("postId", postId)
     const post = await Post.findByPk(postId);
     if (!post) {
       return res.status(404).json({ message: 'Post not found.' });
@@ -64,19 +55,26 @@ export const pinPost = async (req, res) => {
   try {
     const { postId } = req.params;
     const userId = req.user.id;
-    await PostPin.create({
-      post_id: postId,
-      user_id: userId,
-      created_at: new Date()
+    const existingPin = await PostPin.findOne({
+      where: {
+        post_id: postId,
+        user_id: userId,
+      },
     });
 
-    return res.status(201).json({ message: "post pinned successfully." });
+    if (existingPin) {
+      return res.status(400).json({ message: 'Post already pinned by the user.' });
+    }
+    await PostPin.create({
+      post_id: postId,
+      user_id: userId
+    });
+    return res.status(201).json({ message: 'Post pinned successfully.' });
   } catch (error) {
     console.error('Error pinning post:', error);
     return res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 };
-
 
 export const getSpecialities = async (req, res) => {
   try {
@@ -100,3 +98,65 @@ export const getSpecialities = async (req, res) => {
   }
 };
 
+export const reportPost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { reason } = req.body;
+    const userId = req.user.id;
+
+    const existingReport = await ReportPost.findOne({
+      where: {
+        user_id: userId,
+        post_id: postId,
+      },
+    });
+
+    if (existingReport) {
+      return res.status(400).json({ message: 'Post already reported by the user.' });
+    }
+
+    await ReportPost.create({
+      user_id: userId,
+      post_id: postId,
+      reason,
+    });
+
+    res.status(201).json({
+      message: 'Post reported successfully.'
+    });
+  } catch (error) {
+    console.error(`Error reporting post: ${error}`);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+export const bookmarkPost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const userId = req.user.id;
+    const existingBookmark = await PostBookmark.findOne({ where: { post_id: postId, user_id: userId } });
+    if (existingBookmark) {
+      return res.status(400).json({ message: 'Post already bookmarked.' });
+    }
+    await PostBookmark.create({ post_id: postId, user_id: userId });
+    return res.status(201).json({ message: 'Post bookmarked successfully.' });
+  } catch (error) {
+    console.error('Error bookmarking post:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+export const addCommentToPost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { message } = req.body;
+    await PostComment.create({
+      user_id: req.user.id,
+      post_id: postId,
+      comment: message
+    });
+    return res.status(201).json({ message: 'Comment added successfully.' });
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};

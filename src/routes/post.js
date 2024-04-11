@@ -1,14 +1,17 @@
 import express from 'express';
-import { createPost, deletePost, getSpecialities, pinPost } from '../controllers/post.controller';
+import { addCommentToPost, bookmarkPost, createPost, deletePost, getSpecialities, pinPost, reportPost } from '../controllers/post.controller';
 import { authenticateUser } from '../../middleware/authorize';
-// import { loginValidate, userRegistrationValidate } from '../validators/auth.validator';
+
 
 const router = express.Router();
 console.log("hdfhsj")
 router.post('/cc', createPost);
 router.delete('/:postId', deletePost)
 router.get('/:postId/pin', authenticateUser, pinPost)
-router.get('/specialities', getSpecialities )
+router.get('/specialities', getSpecialities)
+router.post('/:postId/report', authenticateUser, reportPost)
+router.post('/:postId/bookmark', authenticateUser, bookmarkPost);
+router.post('/:postId/comments', authenticateUser, addCommentToPost);
 
 
 module.exports = router;
