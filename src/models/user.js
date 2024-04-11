@@ -103,12 +103,14 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     {
-      tableName: 'users', // Adjust table name if needed
-      timestamps: false, // Set to true if you want Sequelize to handle timestamps
+      tableName: 'users',
+      timestamps: false,
     }
   );
 
-  // Add associations here if needed
+  User.associate = (models) => {
+    User.belongsToMany(models.Group, { through: 'GroupMembers', foreignKey: 'userId' });
+  };
 
   return User;
 };

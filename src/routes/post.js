@@ -2,10 +2,8 @@ import express from 'express';
 import { addCommentToPost, bookmarkPost, createPost, deletePost, getSpecialities, pinPost, reportPost } from '../controllers/post.controller';
 import { authenticateUser } from '../../middleware/authorize';
 
-
 const router = express.Router();
-console.log("hdfhsj")
-router.post('/cc', createPost);
+router.post('/cc', authenticateUser,createPost);
 router.delete('/:postId', deletePost)
 router.get('/:postId/pin', authenticateUser, pinPost)
 router.get('/specialities', getSpecialities)

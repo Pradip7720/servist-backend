@@ -7,27 +7,27 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.UUIDV4,
     },
     group_name: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING,
       allowNull: false,
     },
     description: {
       type: DataTypes.TEXT,
     },
     profile_image: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING,
     },
     banner_file: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING,
     },
     banner_file_type: {
       type: DataTypes.INTEGER,
     },
     type: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING,
       allowNull: false,
     },
     privacy: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING,
       allowNull: false,
     },
     is_active: {
@@ -38,10 +38,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
     },
     city: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.STRING,
     },
     state: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING,
     },
     is_approved_by_moderator: {
       type: DataTypes.BOOLEAN,
@@ -60,8 +60,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
     },
   }, {
-    tableName: 'groups', // Adjust table name if needed
-    timestamps: false, // Set to true if you want Sequelize to handle timestamps
+    tableName: 'groups',
+    timestamps: false,
     indexes: [
       {
         name: 'idx_groups_created_by',
@@ -75,6 +75,9 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   // Add associations here if needed
+  Group.associate = (models) => {
+    Group.belongsToMany(models.User, { through: 'GroupMembers', foreignKey: 'groupId' });
+};
 
   return Group;
 };
