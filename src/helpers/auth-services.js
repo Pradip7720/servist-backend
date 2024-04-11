@@ -1,6 +1,6 @@
 
 module.exports = (sequelize, DataTypes) => {
-    const AuthService = sequelize.define('auth_service', {
+    const AuthService = sequelize.define('AuthService', {
         id: {
             type: DataTypes.UUID,
             primaryKey: true,

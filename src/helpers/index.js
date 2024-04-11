@@ -26,6 +26,7 @@ export const validateEmail = (email) => {
 
 export const encryptPassword = (password) => {
   const encryptedPassword = createHash('md5').update(password).digest('hex');
+  console.log("passEncr",encryptedPassword);
   return encryptedPassword;
 };
 

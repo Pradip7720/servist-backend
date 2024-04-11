@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const LicenceDetails = sequelize.define('licence_detail', {
+    const LicenceDetails = sequelize.define('LicenceDetails', {
         id: {
             type: DataTypes.UUID,
             primaryKey: true,

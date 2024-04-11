@@ -1,6 +1,10 @@
 module.exports = (sequelize, DataTypes) => {
     const Post = sequelize.define('Post', {
-
+        id: {
+            type: DataTypes.UUID,
+            primaryKey: true,
+            allowNull: false,
+        },
         post_title: {
             type: DataTypes.STRING(100),
             allowNull: false,

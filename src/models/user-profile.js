@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const UserProfile = sequelize.define('user_profile', {
+    const UserProfile = sequelize.define('UserProfile', {
         id: {
             type: DataTypes.UUID,
             primaryKey: true,

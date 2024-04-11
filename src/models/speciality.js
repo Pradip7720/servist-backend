@@ -1,18 +1,18 @@
 module.exports = (sequelize, DataTypes) => {
-  const PostUser = sequelize.define('PostTags', {
+  const Speciality = sequelize.define('Speciality', {
     id: {
       type: DataTypes.UUID,
       primaryKey: true,
       allowNull: false,
       defaultValue: DataTypes.UUIDV4,
     },
-    post_id: {
-      type: DataTypes.UUID,
+    speciality: {
+      type: DataTypes.STRING(100), 
       allowNull: false,
     },
-    user_id: {
-      type: DataTypes.UUID,
-      allowNull: false,
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
     },
     created_at: {
       type: DataTypes.DATE,
@@ -23,11 +23,11 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.NOW,
     },
   }, {
-    tableName: 'post_tags', // Adjust table name if needed
+    tableName: 'speciality_masters', // Adjust table name if needed
     timestamps: false, // Set to true if you want Sequelize to handle timestamps
   });
 
   // Add associations here if needed
 
-  return PostUser;
+  return Speciality;
 };

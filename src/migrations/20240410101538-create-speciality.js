@@ -9,8 +9,8 @@ module.exports = {
         allowNull: false
       },
       speciality: {
-        type: Sequelize.UUID,
-        allowNull: false,
+        type: Sequelize.STRING(100), 
+      allowNull: false,
       },
       is_active: {
         type: Sequelize.BOOLEAN,

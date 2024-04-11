@@ -1,12 +1,12 @@
 
 
 // import { Post, PostTag, Speciality } from '../models'; // Import your Sequelize models
-const { Post,PostPin } = require('../models');
+const { Post, PostPin, Speciality } = require('../models');
 
 export const createPost = async (req, res) => {
   try {
 
-    console.log("dxsjkjk", req.body)
+    console.log("req.body", req.body)
     const {
       postTitle,
       message,
@@ -20,13 +20,15 @@ export const createPost = async (req, res) => {
     } = req.body;
 
     const post = await Post.create({
+      id: 'e1582912-8d92-42b5-a815-830e0d29a740',
       post_title: postTitle,
-      message,
-      location,
-      attachment,
+      message: message,
+      location: location,
+      attachment: attachment,
+      tags: tags,
       post_anonymously: postAnonymously,
-      hiringRecommendation,
-      specialityId: speciality, //  specialityId is the foreign key in the Post model
+      hiring_recommendation: hiringRecommendation,
+      speciality_id: speciality,
     });
 
     console.log("jkds", Post)
@@ -60,23 +62,41 @@ export const deletePost = async (req, res) => {
 
 export const pinPost = async (req, res) => {
   try {
-    // Extract postId from request parameters
     const { postId } = req.params;
-    console.log("postId", postId)
-    // Extract userId 
-    // const userId = req.user.id;
-
-    // Now you can store postId and userId in the database
-    // For example, using Sequelize ORM:
-    const postPin = await PostPin.create({
+    const userId = req.user.id;
+    await PostPin.create({
       post_id: postId,
-      user_id: "6aeca083-75c8-45cd-8a55-f2011d2b7453",
+      user_id: userId,
       created_at: new Date()
     });
 
-    return res.status(201).json({ success: true, data: postPin });
+    return res.status(201).json({ message: "post pinned successfully." });
   } catch (error) {
     console.error('Error pinning post:', error);
     return res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 };
+
+
+export const getSpecialities = async (req, res) => {
+  try {
+
+    const specialities = await Speciality.findAll({
+      where: {
+        is_active: true
+      }
+    });
+    if (specialities.length === 0) {
+      return res.status(404).json({ message: 'No specialities found.' });
+    }
+    const data = specialities.map(speciality => ({
+      id: speciality.id,
+      name: speciality.speciality,
+    }));
+    return res.status(200).json({ message: 'Speciality list fetched successfully.', data: data });
+  } catch (error) {
+    console.error(`Error fetching specialities: ${error}`);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+

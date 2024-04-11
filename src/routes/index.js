@@ -1,6 +1,6 @@
 import authRoute from './auth';
 import postRoute from './post';
-
+import specialitiesRoute from './specialities';
 
 const routes = [
     {
@@ -10,6 +10,10 @@ const routes = [
     {
         path: `/posts`,
         route: postRoute,
+    },
+    {
+        path: `/specialities`,
+        route:  specialitiesRoute,
     }
 ];
 
