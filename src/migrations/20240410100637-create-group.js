@@ -62,8 +62,6 @@ module.exports = {
         type: Sequelize.UUID,
       },
     });
-
-    // Add indexes if needed
     await queryInterface.addIndex('groups', ['created_by'], {
       name: 'idx_groups_created_by',
     });

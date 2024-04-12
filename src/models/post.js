@@ -70,5 +70,26 @@ module.exports = (sequelize, DataTypes) => {
             },
         ],
     });
+
+    Post.associate = models => {
+        Post.hasMany(models.PostComment, {
+            foreignKey: 'post_id',
+            as: 'comments',
+        });
+        Post.belongsTo(models.User, {
+            foreignKey: 'created_by',
+            as: 'creator',
+        });
+        Post.belongsTo(models.Speciality, {
+            foreignKey: 'speciality_id',
+            as: 'speciality',
+        });
+        Post.belongsTo(models.UserProfile, {
+            foreignKey: 'created_by',
+            as: 'profile',
+            through: 'User',
+        });
+    };
+
     return Post;
 };

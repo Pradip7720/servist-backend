@@ -110,6 +110,19 @@ module.exports = (sequelize, DataTypes) => {
 
   User.associate = (models) => {
     User.belongsToMany(models.Group, { through: 'GroupMembers', foreignKey: 'userId' });
+    User.hasMany(models.PostComment, {
+      foreignKey: 'user_id',
+      as: 'comments',
+    });
+    User.hasMany(models.Post, {
+      foreignKey: 'created_by',
+      as: 'posts',
+    });
+    User.hasOne(models.UserProfile, {
+      foreignKey: 'user_id',
+      as: 'profile',
+    });
+    User.hasMany(models.CommentReply, { foreignKey: 'user_id', as: 'replies' });
   };
 
   return User;

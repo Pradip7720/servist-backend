@@ -4,7 +4,6 @@ import { authenticateUser } from '../../middleware/authorize';
 
 
 const router = express.Router();
-router.post('/', authenticateUser,createGroup);
-// router.delete('/:postId', deletePost)
+router.post('/', authenticateUser, createGroup);
 
 module.exports = router;

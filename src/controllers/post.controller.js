@@ -1,4 +1,5 @@
-const { Post, PostPin, Speciality, ReportPost, PostBookmark, PostComment } = require('../models');
+
+const { Post, PostPin, Speciality, ReportPost, PostBookmark, PostComment, Group, CommentReply, User, UserProfile } = require('../models');
 
 export const createPost = async (req, res) => {
   try {
@@ -160,3 +161,199 @@ export const addCommentToPost = async (req, res) => {
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+export const getAllServist = async (req, res) => {
+  try {
+    const { limit = 10, offset = 0 } = req.query;
+    const groups = await Group.findAll({
+      where: {
+        is_active: true
+      },
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
+    const responseData = groups.map(group => ({
+      id: group.id,
+      groupName: group.group_name,
+      profileImage: group.profile_image,
+      // lastMessage: "how are you" add last message from chat 
+    }));
+
+    const response = {
+      message: 'List of groups retrieved successfully.',
+      data: responseData,
+      page: {
+        offset: parseInt(offset),
+        limit: parseInt(limit),
+        count: groups.length
+      }
+    };
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error('Error fetching groups:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+export const addReply = async (req, res) => {
+  try {
+    const { postId } = req.query;
+    const { commentId, text, level, replyId } = req.body;
+    console.log(req.body
+    );
+    await CommentReply.create({
+      post_id: postId,
+      user_id: req.user.id,
+      parent_reply_id: replyId,
+      comment_id: commentId,
+      text: text,
+      level: level
+    });
+
+    return res.status(200).json({ message: 'Reply added successfully.' });
+  } catch (error) {
+    console.error('Error adding reply:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+export const updateReply = async (req, res) => {
+  try {
+    const { replyId } = req.query;
+    const { text } = req.body;
+    const reply = await CommentReply.findByPk(replyId);
+
+    if (!reply) {
+      return res.status(404).json({ message: 'Reply not found.' });
+    }
+    const payload = {
+      text: text
+    }
+    await reply.update(payload);
+    return res.status(200).json({ message: 'Reply edited successfully.' });
+  } catch (error) {
+    throw error;
+  }
+}
+export const deleteReply = async (req, res) => {
+  try {
+    const { replyId } = req.query;
+
+    const reply = await CommentReply.findByPk(replyId);
+    console.log("reply========", reply);
+    if (!reply) {
+      return res.status(404).json({ message: 'Reply not found.' });
+    }
+    await reply.update({ is_active: false });
+    return res.json({ message: 'Reply deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting reply:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+}
+export const getPostDetails = async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    const post = await Post.findByPk(postId, {
+      include: [
+        {
+          model: PostComment,
+          as: 'comments',
+          include: [
+            { 
+              model: User, 
+              as: 'user', 
+              attributes: ['id', 'first_name', 'last_name'], 
+              include: [{ 
+                model: UserProfile, 
+                as: 'profile', 
+                attributes: ['job_title', 'user_handle', 'profile_pic'] 
+              }] 
+            },
+            {
+              model: CommentReply,
+              as: 'replies',
+              include: [
+                { 
+                  model: User, 
+                  as: 'user', 
+                  attributes: ['id', 'first_name', 'last_name'], 
+                  include: [{ 
+                    model: UserProfile, 
+                    as: 'profile', 
+                    attributes: ['job_title', 'user_handle', 'profile_pic'] 
+                  }] 
+                }
+              ]
+            }
+          ]
+        },
+        { model: User, as: 'creator', attributes: ['id', 'first_name', 'last_name'], 
+          include: [{ 
+            model: UserProfile, 
+            as: 'profile', 
+            attributes: ['job_title', 'user_handle', 'profile_pic'] 
+          }] 
+        },
+        { model: Speciality, as: 'speciality', attributes: ['id', 'speciality'] }
+      ],
+    });
+    
+    
+
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found.' });
+    }
+
+    console.log("post==", post)
+    const responseData = {
+      id: post.id,
+      postTitle: post.postTitle,
+      message: post.message,
+      postAnonymously: post.post_anonymously,
+      hiringRecommendation: post.hiring_recommendation,
+      speciality: {
+        id: post.speciality.id,
+        specialityName: post.speciality.speciality,
+      },
+      updatedAt: post.updated_at,
+      createdBy: {
+        id: post.creator.id,
+        firstName: post.creator.first_name,
+        lastName: post.creator.last_name,
+        // profilePic: post.creator.profile.profile_pic,
+        // jobTitle: post.creator.profile.job_title,
+        // userHandle: post.creator.profile.user_handle,
+      },
+      likeCount: post.like_count,
+      commentCount: post.comment_count,
+      isBookmarked: post.is_bookmarked,
+      isPinned: post.is_pinned,
+      isLiked: post.is_liked,
+      comments: post.comments.map(comment => ({
+        commentId: comment.id,
+        profilePic: comment.user.profile.profile_pic,
+        firstName: comment.user.first_name,
+        lastName: comment.user.last_name,
+        jobTitle: comment.user.profile.job_title,
+        userHandle: comment.user.profile.user_handle,
+        message: comment.comment,
+        likeCount: comment.like_count,
+        updatedAt: comment.updated_at,
+        // replies: comment.replies.map(reply => ({
+        //   // profilePic: reply.user.profilePic,g
+        //   firstName: reply.user.firstName,
+        //   lastName: reply.user.lastName,
+        //   // jobTitle: reply.user.jobTitle,
+        //   updatedAt: reply.updated_at,
+        //   likeCount: reply.like_count,
+        //   isLiked: reply.is_liked,
+        // })),
+      })),
+    };
+
+    return res.json({ message: 'Post fetched successfully.', data: post });
+  } catch (error) {
+    console.error('Error fetching post:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+}
