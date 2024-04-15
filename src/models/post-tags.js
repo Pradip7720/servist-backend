@@ -23,11 +23,23 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.NOW,
     },
   }, {
-    tableName: 'post_tags', // Adjust table name if needed
-    timestamps: false, // Set to true if you want Sequelize to handle timestamps
+    tableName: 'post_tags',
+    timestamps: false,
   });
 
-  // Add associations here if needed
+  PostTags.associate = models => {
+    // Association with User model
+    PostTags.belongsTo(models.User, {
+      foreignKey: 'user_id',
+      as: 'user',
+    });
+
+    // Association with Post model
+    PostTags.belongsTo(models.Post, {
+      foreignKey: 'post_id',
+      as: 'post',
+    });
+  };
 
   return PostTags;
 };

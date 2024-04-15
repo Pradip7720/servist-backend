@@ -1,6 +1,6 @@
 
-const { Post, PostPin, Speciality, ReportPost, PostBookmark, PostComment, Group, CommentReply, User, UserProfile } = require('../models');
-
+const { Post, PostPin, Speciality, ReportPost, PostBookmark, PostComment, Group, CommentReply, User, UserProfile, Reaction } = require('../models');
+const { Op } = require('sequelize');
 export const createPost = async (req, res) => {
   try {
     const {
@@ -35,7 +35,6 @@ export const createPost = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error.' });
   }
 };
-
 export const deletePost = async (req, res) => {
   try {
     const postId = req.params.postId;
@@ -51,7 +50,6 @@ export const deletePost = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error.' });
   }
 };
-
 export const pinPost = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -76,7 +74,6 @@ export const pinPost = async (req, res) => {
     return res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 };
-
 export const getSpecialities = async (req, res) => {
   try {
 
@@ -98,7 +95,6 @@ export const getSpecialities = async (req, res) => {
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 };
-
 export const reportPost = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -130,7 +126,6 @@ export const reportPost = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
-
 export const bookmarkPost = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -258,47 +253,45 @@ export const getPostDetails = async (req, res) => {
           model: PostComment,
           as: 'comments',
           include: [
-            { 
-              model: User, 
-              as: 'user', 
-              attributes: ['id', 'first_name', 'last_name'], 
-              include: [{ 
-                model: UserProfile, 
-                as: 'profile', 
-                attributes: ['job_title', 'user_handle', 'profile_pic'] 
-              }] 
+            {
+              model: User,
+              as: 'user',
+              attributes: ['id', 'first_name', 'last_name'],
+              include: [{
+                model: UserProfile,
+                as: 'profile',
+                attributes: ['job_title', 'user_handle', 'profile_pic']
+              }]
             },
             {
               model: CommentReply,
               as: 'replies',
               include: [
-                { 
-                  model: User, 
-                  as: 'user', 
-                  attributes: ['id', 'first_name', 'last_name'], 
-                  include: [{ 
-                    model: UserProfile, 
-                    as: 'profile', 
-                    attributes: ['job_title', 'user_handle', 'profile_pic'] 
-                  }] 
+                {
+                  model: User,
+                  as: 'user',
+                  attributes: ['id', 'first_name', 'last_name'],
+                  include: [{
+                    model: UserProfile,
+                    as: 'profile',
+                    attributes: ['job_title', 'user_handle', 'profile_pic']
+                  }]
                 }
               ]
             }
           ]
         },
-        { model: User, as: 'creator', attributes: ['id', 'first_name', 'last_name'], 
-          include: [{ 
-            model: UserProfile, 
-            as: 'profile', 
-            attributes: ['job_title', 'user_handle', 'profile_pic'] 
-          }] 
+        {
+          model: User, as: 'creator', attributes: ['id', 'first_name', 'last_name'],
+          include: [{
+            model: UserProfile,
+            as: 'profile',
+            attributes: ['job_title', 'user_handle', 'profile_pic']
+          }]
         },
         { model: Speciality, as: 'speciality', attributes: ['id', 'speciality'] }
       ],
     });
-    
-    
-
 
     if (!post) {
       return res.status(404).json({ message: 'Post not found.' });
@@ -320,9 +313,9 @@ export const getPostDetails = async (req, res) => {
         id: post.creator.id,
         firstName: post.creator.first_name,
         lastName: post.creator.last_name,
-        // profilePic: post.creator.profile.profile_pic,
-        // jobTitle: post.creator.profile.job_title,
-        // userHandle: post.creator.profile.user_handle,
+        profilePic: post.creator.profile.profile_pic,
+        jobTitle: post.creator.profile.job_title,
+        userHandle: post.creator.profile.user_handle,
       },
       likeCount: post.like_count,
       commentCount: post.comment_count,
@@ -339,21 +332,174 @@ export const getPostDetails = async (req, res) => {
         message: comment.comment,
         likeCount: comment.like_count,
         updatedAt: comment.updated_at,
-        // replies: comment.replies.map(reply => ({
-        //   // profilePic: reply.user.profilePic,g
-        //   firstName: reply.user.firstName,
-        //   lastName: reply.user.lastName,
-        //   // jobTitle: reply.user.jobTitle,
-        //   updatedAt: reply.updated_at,
-        //   likeCount: reply.like_count,
-        //   isLiked: reply.is_liked,
-        // })),
+        replies: comment.replies.map(reply => ({
+          profilePic: reply.user.profile.profile_pic,
+          firstName: reply.user.first_name,
+          lastName: reply.user.last_name,
+          jobTitle: reply.user.profile.job_title,
+          updatedAt: reply.updated_at,
+          // likeCount: reply.like_count,
+          // isLiked: reply.is_liked,
+        })),
       })),
     };
 
-    return res.json({ message: 'Post fetched successfully.', data: post });
+    return res.json({ message: 'Post fetched successfully.', data: responseData });
   } catch (error) {
     console.error('Error fetching post:', error);
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 }
+export const postReaction = async (req, res) => {
+  const { postId } = req.params;
+  console.log("req.paraams", req.params)
+  const reaction = req.body.reaction;
+
+  try {
+    const existingReaction = await Reaction.findOne({
+      where: {
+        post_id: postId,
+        user_id: req.user.id
+      }
+    });
+
+    if (existingReaction) {
+      return res.json({ message: "You have already liked this post." });
+    }
+    const newReaction = await Reaction.create({
+      post_id: postId,
+      user_id: req.user.id,
+      reaction: reaction
+    });
+    console.log("newReaction", newReaction);
+    // const likeCount = await getLikeCountForPost(postId);
+    const response = {
+      message: "Post liked successfully.",
+      // likeCount: likeCount
+    };
+    res.json(response);
+  } catch (error) {
+    console.error("Error liking post:", error);
+    res.status(500).json({ error: "Error liking post" });
+  }
+};
+export const fetchTags = async () => {
+  try {
+    const postTags = await PostTag.findAll({
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['firstName', 'lastName'],
+          include: [
+            {
+              model: UserProfile,
+              as: 'profile',
+              attributes: ['profilePic']
+            }
+          ]
+        }
+      ]
+    });
+    const responseData = postTags.map(tag => ({
+      id: tag.id,
+      firstName: tag.user.first_name,
+      lastName: tag.user.last_name,
+      profilePic: tag.user.profile.profile_pic
+    }));
+
+    const response = {
+      message: "Tag list successfully.",
+      data: responseData
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error("Error fetching post tags:", error);
+    res.status(500).json({ error: "Error fetching post tags" });
+  }
+}
+export const fetchPosts = async (req, res) => {
+  try {
+    const { offset, limit, orderBy, orderDir, search, groupId } = req.query;
+    const validOrderColumns = ['created_at', 'updated_at', 'post_title'];
+    const validOrderDirs = ['ASC', 'DESC'];
+    const sanitizedOrderBy = validOrderColumns.includes(orderBy) ? orderBy : 'createdAt';
+    const sanitizedOrderDir = validOrderDirs.includes(orderDir) ? orderDir : 'DESC';
+    console.log("req.query", req.query);
+    const query = {
+      where: {},
+      order: [[sanitizedOrderBy, sanitizedOrderDir]],
+      include: [
+        {
+          model: User,
+          as: 'creator',
+          attributes: ['id', 'first_name', 'last_name'],
+          include: [
+            {
+              model: UserProfile,
+              as: 'profile',
+              attributes: ['profile_pic'],
+            },
+          ],
+        },
+        {
+          model: Speciality,
+          as: 'speciality',
+          attributes: ['id', 'speciality'],
+        },
+      ],
+    };
+
+    if (search) {
+      query.where.post_title = { [Op.like]: `%${search}%` };
+    }
+    if (groupId) {
+      query.where.groupId = groupId;
+    }
+    if (offset !== undefined && limit !== undefined) {
+      query.offset = parseInt(offset);
+      query.limit = parseInt(limit);
+    }
+    const posts = await Post.findAll(query);
+    const count = await Post.count({ where: query.where });
+
+    const payload = posts.map(post => ({
+      id: post.id,
+      postTitle: post.post_title,
+      message: post.message,
+      location: post.location,
+      postAnonymously: post.post_anonymously,
+      hiringRecommendation: post.hiring_recommendation,
+      speciality: {
+        id: post.speciality.id,
+        specialityName: post.speciality.speciality
+      },
+      updatedAt: post.updated_at,
+      createdBy: {
+        id: post.creator.id,
+        firstName: post.creator.first_name,
+        lastName: post.creator.last_name,
+        profilePic: post.creator.profile_pic
+      },
+      // likeCount: post.likeCount,
+      // commentCount: post.commentCount,
+      // isBookmarked: post.isBookmarked,
+      // isPinned: post.isPinned,
+      // isLiked: post.isLiked
+    }));
+
+    res.status(200).json({
+      message: 'Posts fetched successfully.',
+      data: { payload },
+      page: {
+        offset,
+        limit,
+        count,
+      },
+    });
+  } catch (error) {
+    console.error(`Error fetching posts: ${error}`);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};

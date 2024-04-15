@@ -123,6 +123,10 @@ module.exports = (sequelize, DataTypes) => {
       as: 'profile',
     });
     User.hasMany(models.CommentReply, { foreignKey: 'user_id', as: 'replies' });
+    User.hasMany(models.PostTags, {
+      foreignKey: 'user_id',
+      as: 'postTags',
+    });
   };
 
   return User;

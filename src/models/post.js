@@ -89,6 +89,10 @@ module.exports = (sequelize, DataTypes) => {
             as: 'profile',
             through: 'User',
         });
+        Post.hasMany(models.PostTags, {
+            foreignKey: 'post_id',
+            as: 'postTags',
+        });
     };
 
     return Post;
