@@ -266,6 +266,7 @@ export const getPostDetails = async (req, res) => {
             {
               model: CommentReply,
               as: 'replies',
+              // where: { is_active: true },
               include: [
                 {
                   model: User,
