@@ -3,7 +3,7 @@ import { addCommentToPost, addReply, bookmarkPost, createPost, deletePost, delet
 import { authenticateUser } from '../../middleware/authorize';
 
 const router = express.Router();
-router.post('/cc', authenticateUser, createPost);
+router.post('/', authenticateUser, createPost);
 router.delete('/:postId', deletePost);
 router.get('/:postId/pin', authenticateUser, pinPost);
 router.get('/specialities', getSpecialities);

@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.UUID,
             primaryKey: true,
             allowNull: false,
+            defaultValue: DataTypes.UUIDV4,
         },
         post_title: {
             type: DataTypes.STRING(100),
@@ -93,6 +94,7 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'post_id',
             as: 'postTags',
         });
+        // Post.belongsToMany(models.Group, { through: 'PostGroups', foreignKey: 'postId' });
     };
 
     return Post;

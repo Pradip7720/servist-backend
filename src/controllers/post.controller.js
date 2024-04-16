@@ -1,5 +1,7 @@
+import { createPostSchema, postValidateSchema } from '../validators/post.validator';
+import { commentReplySchema, editCommentReplySchema } from '../validators/reply.validator';
 
-const { Post, PostPin, Speciality, ReportPost, PostBookmark, PostComment, Group, CommentReply, User, UserProfile, Reaction } = require('../models');
+const { Post, PostPin, Speciality, ReportPost, PostBookmark, PostGroup, PostComment, Group, CommentReply, User, UserProfile, Reaction, PostTags } = require('../models');
 const { Op } = require('sequelize');
 export const createPost = async (req, res) => {
   try {
@@ -11,24 +13,28 @@ export const createPost = async (req, res) => {
       postAnonymously,
       hiringRecommendation,
       speciality,
-      groupId,
       tags,
+      groupIds
     } = req.body;
-
-    const post = await Post.create({
-      id: 'e1582912-8d92-42b5-a815-830e0d29a740',
+    const { error } = createPostSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
+    const data = await Post.create({
       post_title: postTitle,
       message: message,
       location: location,
       attachment: attachment,
-      tags: tags,
       post_anonymously: postAnonymously,
       hiring_recommendation: hiringRecommendation,
       speciality_id: speciality,
     });
-    await post.addGroups(groupId); //  groupId is an array of group IDs
+    const postTagsData = tags.map(tagId => ({ user_id: tagId, post_id: data.id }));
+    await PostTags.bulkCreate(postTagsData);
+    const postGroupIds = groupIds.map(groupId => ({ group_id: groupId, post_id: data.id }));
+    console.log("postGroupIds", postGroupIds)
+    await PostGroup.bulkCreate(postGroupIds);
 
-    await Promise.all(tags.map(tagId => PostTag.create({ postId: post.id, tagId })));
     return res.status(201).json({ message: 'Post created successfully.' });
   } catch (error) {
     console.error('Error creating post:', error);
@@ -37,7 +43,11 @@ export const createPost = async (req, res) => {
 };
 export const deletePost = async (req, res) => {
   try {
-    const postId = req.params.postId;
+    const { postId } = req.params;
+    const { error } = postValidateSchema.validate(req.params);
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
     const post = await Post.findByPk(postId);
     if (!post) {
       return res.status(404).json({ message: 'Post not found.' });
@@ -54,6 +64,10 @@ export const pinPost = async (req, res) => {
   try {
     const { postId } = req.params;
     const userId = req.user.id;
+    const { error } = postValidateSchema.validate(req.params);
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
     const existingPin = await PostPin.findOne({
       where: {
         post_id: postId,
@@ -76,7 +90,6 @@ export const pinPost = async (req, res) => {
 };
 export const getSpecialities = async (req, res) => {
   try {
-
     const specialities = await Speciality.findAll({
       where: {
         is_active: true
@@ -100,6 +113,10 @@ export const reportPost = async (req, res) => {
     const { postId } = req.params;
     const { reason } = req.body;
     const userId = req.user.id;
+    const { error } = postValidateSchema.validate(req.params);
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
 
     const existingReport = await ReportPost.findOne({
       where: {
@@ -130,6 +147,10 @@ export const bookmarkPost = async (req, res) => {
   try {
     const { postId } = req.params;
     const userId = req.user.id;
+    const { error } = postValidateSchema.validate(req.params);
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
     const existingBookmark = await PostBookmark.findOne({ where: { post_id: postId, user_id: userId } });
     if (existingBookmark) {
       return res.status(400).json({ message: 'Post already bookmarked.' });
@@ -137,7 +158,7 @@ export const bookmarkPost = async (req, res) => {
     await PostBookmark.create({ post_id: postId, user_id: userId });
     return res.status(201).json({ message: 'Post bookmarked successfully.' });
   } catch (error) {
-    console.error('Error bookmarking post:', error);
+    console.error(`Error bookmarking post: ${error}`);
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 };
@@ -145,6 +166,11 @@ export const addCommentToPost = async (req, res) => {
   try {
     const { postId } = req.params;
     const { message } = req.body;
+    const { error } = postValidateSchema.validate(req.params);
+    
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
     await PostComment.create({
       user_id: req.user.id,
       post_id: postId,
@@ -192,8 +218,11 @@ export const addReply = async (req, res) => {
   try {
     const { postId } = req.query;
     const { commentId, text, level, replyId } = req.body;
-    console.log(req.body
-    );
+    const { error } = commentReplySchema.validate(req.body);
+
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
     await CommentReply.create({
       post_id: postId,
       user_id: req.user.id,
@@ -213,6 +242,10 @@ export const updateReply = async (req, res) => {
   try {
     const { replyId } = req.query;
     const { text } = req.body;
+    const { error } = editCommentReplySchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
     const reply = await CommentReply.findByPk(replyId);
 
     if (!reply) {
@@ -246,7 +279,6 @@ export const deleteReply = async (req, res) => {
 export const getPostDetails = async (req, res) => {
   try {
     const { postId } = req.params;
-
     const post = await Post.findByPk(postId, {
       include: [
         {
@@ -352,7 +384,12 @@ export const getPostDetails = async (req, res) => {
   }
 }
 export const postReaction = async (req, res) => {
+  const { error } = postValidateSchema.validate(req.params);
   const { postId } = req.params;
+
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
   console.log("req.paraams", req.params)
   const reaction = req.body.reaction;
 
@@ -427,7 +464,6 @@ export const fetchPosts = async (req, res) => {
     const validOrderDirs = ['ASC', 'DESC'];
     const sanitizedOrderBy = validOrderColumns.includes(orderBy) ? orderBy : 'createdAt';
     const sanitizedOrderDir = validOrderDirs.includes(orderDir) ? orderDir : 'DESC';
-    console.log("req.query", req.query);
     const query = {
       where: {},
       order: [[sanitizedOrderBy, sanitizedOrderDir]],

@@ -1,3 +1,4 @@
+import { contactQuerySchema } from '../validators/contactus.validator';
 
 const { ContactUsQuery } = require('../models');
 export const createContactQuery = async (req, res) => {
@@ -8,8 +9,12 @@ export const createContactQuery = async (req, res) => {
             subject,
             phoneNumber,
             countryCode,
-            description,
+            description
         } = req.body;
+        const { error } = contactQuerySchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({ error: error.details[0].message });
+        }
         await ContactUsQuery.create({
             first_name: firstName,
             last_name: lastName,
