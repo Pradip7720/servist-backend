@@ -9,7 +9,6 @@ aws.config.update({
   region: process.env.AWS_REGION
 });
 
-
 const transporter = nodemailer.createTransport({
   SES: new aws.SES({ apiVersion: '2010-12-01' })
 });
