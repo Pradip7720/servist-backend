@@ -34,9 +34,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
       },
       role: {
-        type: DataTypes.ENUM('admin', 'user'), // Adjust enum values as needed
+        type: DataTypes.ENUM(1, 2), // Adjust enum values as needed
         allowNull: false,
-        defaultValue: 'user', // Adjust default value as needed
+        defaultValue: 2, // Adjust default value as needed
       },
       pincode: {
         type: DataTypes.STRING,

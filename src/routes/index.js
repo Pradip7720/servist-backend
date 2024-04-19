@@ -18,7 +18,7 @@ const routes = [
         route: specialitiesRoute,
     },
     {
-        path: `/group`,
+        path: `/groups`,
         route: groupRoute,
     },
     {
