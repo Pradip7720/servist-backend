@@ -1,5 +1,5 @@
 import express from 'express';
-import { addUser, createGroup, createSubGroup, fetchGroupInfo, groupJoinRequest, leaveGroup, myGroups, removeUserFromGroup, } from '../controllers/group.controller';
+import { addUser, createGroup, createSubGroup, fetchGroupInfo, fetchGroupMembers, groupJoinRequest, leaveGroup, myGroups, removeUserFromGroup, sendGroupChatMessage, } from '../controllers/group.controller';
 import { authenticateUser } from '../../middleware/authorize';
 import multer from 'multer';
 
@@ -13,7 +13,8 @@ router.delete('/:groupId/users/:userId', authenticateUser, removeUserFromGroup)
 router.get('/:groupId', authenticateUser, fetchGroupInfo);
 router.post('/:groupId/sub-group', upload.none(), authenticateUser, createSubGroup)
 router.get('/my-group', authenticateUser, myGroups);
-
+router.get('/:groupId/group-members', authenticateUser, fetchGroupMembers);
+router.post('/:groupId/group-chat', upload.none(), authenticateUser, sendGroupChatMessage)
 
 
 module.exports = router;

@@ -1,5 +1,6 @@
-import { addUserToGroupSchema, createGroupSchema, groupValidateSchema, removeUserGroupSchema } from '../validators/group.validator';
-const { Group, UserGroup, GroupJoinRequest, User, UserProfile } = require('../models');
+import Sequelize from 'sequelize';
+import { addUserToGroupSchema, createGroupSchema, groupValidateSchema, messageSchema, removeUserGroupSchema } from '../validators/group.validator';
+const { Group, UserGroup, GroupJoinRequest, User, UserProfile, GroupChat } = require('../models');
 
 export const createGroup = async (req, res) => {
     try {
@@ -191,7 +192,6 @@ export const createSubGroup = async (req, res) => {
         const { groupId } = req.params;
         const { error } = createGroupSchema.validate(req.body);
         const users = JSON.parse(members);
-        console.log("users", users)
         if (error) {
             return res.status(400).json({ error: error.details[0].message });
         }
@@ -261,6 +261,108 @@ export const myGroups = async (req, res) => {
         return res.status(500).json({ message: 'Internal server error.' });
     }
 }
-export const fetchGroupMembers = (req, res) => {
- 
+export const fetchGroupMembers = async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        const { error } = groupValidateSchema.validate(req.params);
+        if (error) {
+            return res.status(400).json({ error: error.details[0].message });
+        }
+        const { search, offset, limit } = req.query;
+        const searchCriteria = {
+            group_id: groupId
+        };
+        if (search) {
+            // search by first name
+            searchCriteria['$User.first_name$'] = { [Sequelize.Op.like]: `%${search}%` };
+        }
+        const offsetValue = parseInt(offset) || 0;
+        const limitValue = parseInt(limit) || 10;
+
+        const groupMembers = await UserGroup.findAll({
+            where: searchCriteria,
+            include: [
+                {
+                    model: User,
+                    include: [
+                        {
+                            model: UserProfile,
+                            as: 'profile',
+                            attributes: ['profile_pic', 'job_title', 'user_handle']
+                        }
+                    ],
+                    attributes: ['first_name', 'last_name']
+                }
+            ],
+            offset: offsetValue,
+            limit: limitValue
+        });
+        const responseData = groupMembers.map(member => ({
+            id: member.user_id,
+            firstName: member.User.first_name,
+            lastName: member.User.last_name,
+            profilePic: member.User.profile ? member.User.profile.profile_pic : '',
+            jobTitle: member.User.profile ? member.User.profile.job_title : '',
+            userHandle: member.User.profile ? member.User.profile.user_handle : '',
+            isAdmin: member.is_admin,
+            isAdded: true
+        }))
+        return res.json({
+            message: 'List of group members retrieved successfully.',
+            data: responseData,
+            page: {
+                offset: offsetValue,
+                limit: limitValue,
+                count: responseData.length
+            }
+        });
+    } catch (error) {
+        console.error(`Error fetching group members: ${error}`);
+        return res.status(500).json({ message: 'Internal server error.' });
+    }
 }
+export const sendGroupChatMessage = async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        const { message, attachment, attachment_type } = req.body;
+        const { error } = messageSchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({ error: error.details[0].message });
+        }
+        const senderDetails = req.user;
+        const user = await User.findByPk(senderDetails.id, {
+            include: [{
+                model: UserProfile,
+                as: 'profile',
+                attributes: ['profile_pic']
+            }],
+            attributes: ['first_name', 'last_name']
+        });
+        const newMessage = await GroupChat.create({
+            group_id: groupId,
+            message: message,
+            attachment: attachment,
+            attachment_type: attachment_type,
+            user_id: senderDetails.id
+        });
+        const responseData = {
+            groupId: groupId,
+            message: newMessage.message,
+            type: newMessage.attachment_type || 'text',
+            createAt: newMessage.sent_date,
+            senderDetails: {
+                id: senderDetails.id,
+                firstName: user.first_name,
+                lastName: user.last_name,
+                profilePic: user.profile ? user.profile.profile_pic : null
+            }
+        };
+        return res.json({
+            message: 'Message sent successfully.',
+            data: responseData
+        });
+    } catch (error) {
+        console.error(`Error sending group chat message: ${error}`);
+        return res.status(500).json({ message: 'Internal server error.' });
+    }
+};

@@ -3,7 +3,7 @@ import postRoute from './post';
 import specialitiesRoute from './specialities';
 import groupRoute from './group';
 import contactusRoute from './contactus'
-
+import userRoute from './user'
 const routes = [
     {
         path: `/auth`,
@@ -24,6 +24,10 @@ const routes = [
     {
         path: `/contact-us`,
         route: contactusRoute,
+    },
+    {
+        path: `/users`,
+        route: userRoute,
     }
 ];
 

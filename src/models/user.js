@@ -128,6 +128,8 @@ module.exports = (sequelize, DataTypes) => {
       as: 'postTags',
     });
     User.belongsToMany(models.Group, { through: models.UserGroup, foreignKey: 'user_id' });
+    User.hasMany(models.UserContact, { foreignKey: 'user_id', as: 'contacts' });
+    User.hasMany(models.UserContact, { foreignKey: 'contact_id', as: 'contactedUsers' });
   };
 
   return User;

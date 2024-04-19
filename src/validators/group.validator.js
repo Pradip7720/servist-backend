@@ -19,8 +19,12 @@ export const addUserToGroupSchema = Joi.object({
         .min(1)
         .required()
 });
-
 export const removeUserGroupSchema = Joi.object({
     groupId: Joi.string().uuid().required(),
     userId: Joi.string().uuid().required()
+});
+export const messageSchema = Joi.object({
+    message: Joi.string().required(),
+    attachment: Joi.string().allow('').max(250),
+    attachment_type: Joi.string().allow('').max(20)
 });
