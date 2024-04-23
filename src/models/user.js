@@ -130,6 +130,8 @@ module.exports = (sequelize, DataTypes) => {
     User.belongsToMany(models.Group, { through: models.UserGroup, foreignKey: 'user_id' });
     User.hasMany(models.UserContact, { foreignKey: 'user_id', as: 'contacts' });
     User.hasMany(models.UserContact, { foreignKey: 'contact_id', as: 'contactedUsers' });
+    User.hasMany(models.BlockedUser, { foreignKey: 'user_id', as: 'blockedUsers' });
+    User.hasMany(models.BlockedUser, { foreignKey: 'block_user_id', as: 'blockingUsers' });
   };
 
   return User;
