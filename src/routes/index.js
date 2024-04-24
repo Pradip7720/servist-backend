@@ -4,6 +4,7 @@ import specialitiesRoute from './specialities';
 import groupRoute from './group';
 import contactusRoute from './contactus'
 import userRoute from './user'
+import notificationRoute from './notificationpref'
 const routes = [
     {
         path: `/auth`,
@@ -28,6 +29,10 @@ const routes = [
     {
         path: `/users`,
         route: userRoute,
+    },
+    {
+        path: `/notification-preferences`,
+        route: notificationRoute
     }
 ];
 

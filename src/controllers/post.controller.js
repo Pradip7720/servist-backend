@@ -28,13 +28,12 @@ export const createPost = async (req, res) => {
       post_anonymously: postAnonymously,
       hiring_recommendation: hiringRecommendation,
       speciality_id: speciality,
+      created_by: req.user.id
     });
     const postTagsData = tags.map(tagId => ({ user_id: tagId, post_id: data.id }));
     await PostTags.bulkCreate(postTagsData);
     const postGroupIds = groupIds.map(groupId => ({ group_id: groupId, post_id: data.id }));
-    console.log("postGroupIds", postGroupIds)
     await PostGroup.bulkCreate(postGroupIds);
-
     return res.status(201).json({ message: 'Post created successfully.' });
   } catch (error) {
     console.error('Error creating post:', error);
@@ -167,7 +166,7 @@ export const addCommentToPost = async (req, res) => {
     const { postId } = req.params;
     const { message } = req.body;
     const { error } = postValidateSchema.validate(req.params);
-    
+
     if (error) {
       return res.status(400).json({ error: error.details[0].message });
     }
@@ -390,7 +389,6 @@ export const postReaction = async (req, res) => {
   if (error) {
     return res.status(400).json({ error: error.details[0].message });
   }
-  console.log("req.paraams", req.params)
   const reaction = req.body.reaction;
 
   try {
@@ -421,7 +419,7 @@ export const postReaction = async (req, res) => {
     res.status(500).json({ error: "Error liking post" });
   }
 };
-export const fetchTags = async () => {
+export const fetchTags = async (req, res) => {
   try {
     const postTags = await PostTag.findAll({
       include: [

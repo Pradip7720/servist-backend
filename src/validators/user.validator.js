@@ -12,3 +12,7 @@ export const userUpdateSchema = Joi.object({
    userHandle: Joi.string().allow('').optional(),
    bio: Joi.string().allow('').optional()
 });
+
+export const userThemeValidation = Joi.object({
+   theme: Joi.string().required()
+})

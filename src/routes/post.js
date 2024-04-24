@@ -1,5 +1,5 @@
 import express from 'express';
-import { addCommentToPost, addReply, bookmarkPost, createPost, deletePost, deleteReply, editreply, fetchPosts, fetchTags, getAllServist, getPostDetails, getSpecialities, pinPost, postReaction, reportPost, updateReply } from '../controllers/post.controller';
+import { addCommentToPost, addReply, bookmarkPost, createPost, deletePost, deleteReply, fetchPosts, fetchTags, getAllServist, getPostDetails, getSpecialities, pinPost, postReaction, reportPost, updateReply } from '../controllers/post.controller';
 import { authenticateUser } from '../../middleware/authorize';
 
 const router = express.Router();
@@ -17,5 +17,6 @@ router.delete('/replies', authenticateUser, deleteReply);
 router.get('/:postId', authenticateUser, getPostDetails);
 router.post('/:postId/reaction', authenticateUser, postReaction);
 router.get('/tags', authenticateUser, fetchTags);
-router.get('/', authenticateUser, fetchPosts)
+router.get('/', authenticateUser, fetchPosts);
+
 module.exports = router;

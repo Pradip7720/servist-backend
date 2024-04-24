@@ -2,6 +2,7 @@ import express from 'express';
 import { addUser, createGroup, createSubGroup, fetchGroupInfo, fetchGroupMembers, groupJoinRequest, leaveGroup, myGroups, removeUserFromGroup, sendGroupChatMessage, } from '../controllers/group.controller';
 import { authenticateUser } from '../../middleware/authorize';
 import multer from 'multer';
+import { setNotificationPref } from '../controllers/notificationpref.controller';
 
 const router = express.Router();
 const upload = multer();
@@ -14,7 +15,8 @@ router.get('/:groupId', authenticateUser, fetchGroupInfo);
 router.post('/:groupId/sub-group', upload.none(), authenticateUser, createSubGroup)
 router.get('/my-group', authenticateUser, myGroups);
 router.get('/:groupId/group-members', authenticateUser, fetchGroupMembers);
-router.post('/:groupId/group-chat', upload.none(), authenticateUser, sendGroupChatMessage)
+router.post('/:groupId/group-chat', upload.none(), authenticateUser, sendGroupChatMessage);
+router.put('/:groupId/notification-preferences', authenticateUser, setNotificationPref)
 
 
 module.exports = router;
